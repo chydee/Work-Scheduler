@@ -65,14 +65,6 @@
                     android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/work_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Status : Not Assigned"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -51,12 +51,6 @@ public class WorksAvailableAdapter extends RecyclerView.Adapter<WorksAvailableAd
         holder.work_deadline.setText(work.getWork_deadline());
         holder.work_price_range.setText("Rs." + work.getPrice_range_from() + " - " + "Rs." + work.getPrice_range_to());
 
-        if (work.getAssigned_to().isEmpty()) {
-            holder.work_status.setText("NOT ASSIGNED");
-        } else {
-            holder.work_status.setText("ASSIGNED");
-        }
-
             holder.work_card.setOnClickListener(view -> {
                 Intent intent = new Intent(mContext, WorkAcceptedActivity.class);
                 intent.putExtra("created_date", work.getCreated_date());
@@ -105,8 +99,6 @@ public class WorksAvailableAdapter extends RecyclerView.Adapter<WorksAvailableAd
         TextView work_price_range;
         @BindView(R.id.work_card)
         CardView work_card;
-        @BindView(R.id.work_status)
-        TextView work_status;
 
         ViewHolder(View view) {
             super(view);
