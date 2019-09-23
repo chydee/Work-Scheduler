@@ -29,7 +29,9 @@
                 android:id="@+id/profile_picture_image_view"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:scaleType="centerCrop"/>
+                android:src="@mipmap/ic_launcher"
+                android:scaleType="centerCrop"
+                android:contentDescription="TODO" />
 
         </androidx.cardview.widget.CardView>
 

@@ -68,6 +68,7 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
         setContentView(R.layout.activity_workers);
 
         ButterKnife.bind(this);
+        appStatus = new AppStatus(this);
         setTitle("Worker Account");
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Please wait");

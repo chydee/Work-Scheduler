@@ -1,7 +1,9 @@
 package soa.work.scheduler;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -105,7 +107,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View header = navigationView.getHeaderView(0);
         profilePictureImageView = header.findViewById(R.id.profile_picture_image_view);
         profileNameTextView = header.findViewById(R.id.profile_name_text_view);
-        Picasso.get().load(currentUser.getPhotoUrl()).into(profilePictureImageView);
+        Picasso.Builder builder = new Picasso.Builder(this);
+        builder.listener(new Picasso.Listener() {
+            @Override
+            public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                Toast.makeText(MainActivity.this, "Failed to load profile pic", Toast.LENGTH_SHORT).show();
+            }
+        });
+        Picasso pic = builder.build();
+        pic.load(currentUser.getPhotoUrl())
+                .placeholder(R.mipmap.ic_launcher)
+                .into(profilePictureImageView);
         profileNameTextView.setText(currentUser.getDisplayName());
     }
 
