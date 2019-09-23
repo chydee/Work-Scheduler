@@ -1,0 +1,15 @@
+package soa.work.scheduler;
+
+class Constants {
+    static final String WORK_CATEGORY = "work_category";
+    static final String USER_ACCOUNTS = "user_accounts";
+    static final String CARPENTER = "Carpenter";
+    static final String MECHANIC = "Mechanic";
+    static final String ELECTRICIAN = "Electrician";
+    static final String PLUMBER = "Plumber";
+    static final String PAINTER = "Painter";
+    static final String CURRENTLY_AVAILABLE_WORKS = "currently_available_works";
+    static final String WORKS_POSTED = "works_posted";
+    static final String WORK_ASSIGNED_TO = "assigned_to";
+    static final String WORK_ASSIGNED_AT = "assigned_at";
+}

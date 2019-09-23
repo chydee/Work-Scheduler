@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "978562498892",
+    "firebase_url": "https://work-scheduler-fc725.firebaseio.com",
+    "project_id": "work-scheduler-fc725",
+    "storage_bucket": "work-scheduler-fc725.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978562498892:android:4dc41769699770790a4fe9",
+        "android_client_info": {
+          "package_name": "soa.work.scheduler"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978562498892-t2ibhrhb0v1vpf4n0vcb9lmugs3pf9hh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "soa.work.scheduler",
+            "certificate_hash": "636bcf1b7bf99ceaa611c787c2424011b5a574ae"
+          }
+        },
+        {
+          "client_id": "978562498892-aovrqe622id8a751jtpaes3s0ei0uh7n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "soa.work.scheduler",
+            "certificate_hash": "2ecb499e4260a542f956655a23c5ed53de8e28c7"
+          }
+        },
+        {
+          "client_id": "978562498892-kv1079fd5etca7nak8fuanainu5l194g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSAvRt0C8w1hXxFJyBAdf7E6KvW06fSKE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978562498892-kv1079fd5etca7nak8fuanainu5l194g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
