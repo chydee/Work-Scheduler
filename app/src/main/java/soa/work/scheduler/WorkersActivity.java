@@ -3,6 +3,7 @@ package soa.work.scheduler;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,7 +19,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -38,10 +39,11 @@ import soa.work.scheduler.models.AppStatus;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
+import static soa.work.scheduler.Constants.WORKER_ACCOUNT;
 import static soa.work.scheduler.Constants.WORK_CATEGORY;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class WorkersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class WorkersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, WorksAvailableAdapter.ItemCLickListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -68,6 +70,9 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
         setContentView(R.layout.activity_workers);
 
         ButterKnife.bind(this);
+
+        new PrefManager(this).setLastOpenedActivity(WORKER_ACCOUNT);
+
         appStatus = new AppStatus(this);
         setTitle("Worker Account");
         progressDialog = new ProgressDialog(this);
@@ -77,6 +82,7 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
             Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
         } else {
             worksAvailableAdapter = new WorksAvailableAdapter(workList, this);
+            worksAvailableAdapter.setItemClickListener(this);
             worksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             worksRecyclerView.setHasFixedSize(true);
             worksRecyclerView.setAdapter(worksAvailableAdapter);
@@ -115,11 +121,16 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
                                         return;
                                     }
                                     for (DataSnapshot item : dataSnapshot.getChildren()) {
-                                        /**
-                                         *Add a if condition to check whether the work is assigned or not*/
-                                        workList.add(item.getValue(UniversalWork.class));
-
+                                        UniversalWork work = item.getValue(UniversalWork.class);
+                                        if (work.getAssigned_at().isEmpty() && work.getAssigned_to().isEmpty()) {
+                                            workList.add(work);
+                                        } else {
+                                            if (work.getAssigned_to_id().equals(currentUser.getUid())) {
+                                                workList.add(work);
+                                            }
+                                        }
                                     }
+                                    Collections.reverse(workList);
                                     noWorksTextView.setVisibility(View.GONE);
                                     worksAvailableAdapter.notifyDataSetChanged();
                                 }
@@ -171,5 +182,13 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
         }
+    }
+
+    @Override
+    public void onItemClick(UniversalWork work) {
+        Intent intent = new Intent(this, WorkDetailsActivity.class);
+        intent.putExtra("created_date", work.getCreated_date());
+        intent.putExtra("work_posted_by_account_id", work.getWork_posted_by_account_id());
+        startActivity(intent);
     }
 }

@@ -3,6 +3,8 @@ package soa.work.scheduler;
 public class UniversalWork {
     private String assigned_at;
     private String assigned_to;
+    private String assigned_to_id;
+    private String worker_phone_number;
     private String created_date;
     private String user_phone;
     private String work_address;
@@ -13,6 +15,10 @@ public class UniversalWork {
     private String work_posted_by_account_id;
     private String work_posted_by_name;
     private String price_range_from;
+    private String price_range_to;
+
+    public UniversalWork() {
+    }
 
     public String getPrice_range_from() {
         return price_range_from;
@@ -28,11 +34,6 @@ public class UniversalWork {
 
     public void setPrice_range_to(String price_range_to) {
         this.price_range_to = price_range_to;
-    }
-
-    private String price_range_to;
-
-    public UniversalWork() {
     }
 
     public String getAssigned_at() {
@@ -83,10 +84,6 @@ public class UniversalWork {
         this.work_category = work_category;
     }
 
-    public boolean getWork_completed() {
-        return work_completed;
-    }
-
     public void setWork_completed(boolean work_completed) {
         this.work_completed = work_completed;
     }
@@ -121,5 +118,25 @@ public class UniversalWork {
 
     public void setWork_posted_by_name(String work_posted_by_name) {
         this.work_posted_by_name = work_posted_by_name;
+    }
+
+    public String getAssigned_to_id() {
+        return assigned_to_id;
+    }
+
+    public void setAssigned_to_id(String assigned_to_id) {
+        this.assigned_to_id = assigned_to_id;
+    }
+
+    public boolean isWork_completed() {
+        return work_completed;
+    }
+
+    public String getWorker_phone_number() {
+        return worker_phone_number;
+    }
+
+    public void setWorker_phone_number(String worker_phone_number) {
+        this.worker_phone_number = worker_phone_number;
     }
 }

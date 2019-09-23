@@ -2,8 +2,12 @@ package soa.work.scheduler;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +27,7 @@ import static soa.work.scheduler.Constants.CARPENTER;
 import static soa.work.scheduler.Constants.ELECTRICIAN;
 import static soa.work.scheduler.Constants.MECHANIC;
 import static soa.work.scheduler.Constants.PAINTER;
+import static soa.work.scheduler.Constants.PHONE_NUMBER;
 import static soa.work.scheduler.Constants.PLUMBER;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORK_CATEGORY;
@@ -48,17 +53,43 @@ public class ChooseWorkCategoryActivity extends AppCompatActivity  {
 
 
         CategoryRecyclerViewAdapter categoryRecyclerViewAdapter = new CategoryRecyclerViewAdapter(categories);
-        categoryRecyclerViewAdapter.setItemClickListener(category -> {
-            FirebaseDatabase databaseRef = FirebaseDatabase.getInstance();
-            DatabaseReference currentUserAccount = databaseRef.getReference(USER_ACCOUNTS).child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-            currentUserAccount.child(WORK_CATEGORY).setValue(category.getCategoryTitle());
-            OneSignal.sendTag(WORK_CATEGORY, category.getCategoryTitle());
-            startActivity(new Intent(this, WorkersActivity.class));
-            finish();
-        });
+        categoryRecyclerViewAdapter.setItemClickListener(this::askPhoneNumber);
         categoriesRecyclerView.setAdapter(categoryRecyclerViewAdapter);
         GridLayoutManager manager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
         categoriesRecyclerView.setLayoutManager(manager);
+    }
+
+    private void askPhoneNumber(Category category) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Contact Info is required");
+        alertDialog.setMessage("Enter Phone number");
+
+        final EditText input = new EditText(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        alertDialog.setView(input);
+        alertDialog.setCancelable(false);
+
+        alertDialog.setPositiveButton("DONE",
+                (dialog, which) -> {
+                    String phoneNumber = input.getText().toString();
+                    if (phoneNumber.length() < 10) {
+                        Toast.makeText(ChooseWorkCategoryActivity.this, "Phone number is not valid", Toast.LENGTH_SHORT).show();
+                        askPhoneNumber(category);
+                    } else {
+                        FirebaseDatabase databaseRef = FirebaseDatabase.getInstance();
+                        DatabaseReference currentUserAccount = databaseRef.getReference(USER_ACCOUNTS).child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+                        currentUserAccount.child(WORK_CATEGORY).setValue(category.getCategoryTitle());
+                        currentUserAccount.child(PHONE_NUMBER).setValue(phoneNumber);
+                        OneSignal.sendTag(WORK_CATEGORY, category.getCategoryTitle());
+                        startActivity(new Intent(ChooseWorkCategoryActivity.this, WorkersActivity.class));
+                        finish();
+                    }
+                });
+
+        alertDialog.show();
     }
 
     @Override

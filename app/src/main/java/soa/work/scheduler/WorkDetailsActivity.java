@@ -1,0 +1,230 @@
+package soa.work.scheduler;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.InputType;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Scanner;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import soa.work.scheduler.Retrofit.ApiService;
+import soa.work.scheduler.Retrofit.RetrofitClient;
+
+import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
+import static soa.work.scheduler.Constants.UID;
+import static soa.work.scheduler.Constants.USER_ACCOUNTS;
+import static soa.work.scheduler.Constants.WORKER_PHONE_NUMBER;
+import static soa.work.scheduler.Constants.WORKS_POSTED;
+import static soa.work.scheduler.Constants.WORK_ASSIGNED_AT;
+import static soa.work.scheduler.Constants.WORK_ASSIGNED_TO;
+import static soa.work.scheduler.Constants.WORK_ASSIGNED_TO_ID;
+import static soa.work.scheduler.Constants.WORK_CATEGORY;
+
+public class WorkDetailsActivity extends AppCompatActivity {
+
+    @BindView(R.id.work_accept)
+    Button acceptWorkButton;
+    @BindView(R.id.posted_at_text_view)
+    EditText postedAtTextView;
+    @BindView(R.id.posted_by_text_view)
+    EditText postedByTextView;
+    @BindView(R.id.price_range_text_view)
+    EditText priceRangeTextView;
+    @BindView(R.id.user_phone_number)
+    EditText userPhoneNumberTextView;
+    @BindView(R.id.user_location)
+    EditText userLocationTextView;
+    @BindView(R.id.deadline_text_view)
+    EditText deadlineTextView;
+    @BindView(R.id.work_description_text_view)
+    EditText workDescriptionTextView;
+
+    private FirebaseUser currentUser;
+    private String created_date, work_posted_by_account_id;
+    private String oneSignalAppId;
+    private String oneSignalRestApiKey;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.work_details);
+
+        ButterKnife.bind(this);
+
+        setTitle("Work Details");
+
+        getOneSignalKeys();
+
+        postedAtTextView.setInputType(InputType.TYPE_NULL);
+        postedByTextView.setInputType(InputType.TYPE_NULL);
+        priceRangeTextView.setInputType(InputType.TYPE_NULL);
+        userPhoneNumberTextView.setInputType(InputType.TYPE_NULL);
+        userLocationTextView.setInputType(InputType.TYPE_NULL);
+        deadlineTextView.setInputType(InputType.TYPE_NULL);
+        workDescriptionTextView.setInputType(InputType.TYPE_NULL);
+
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        Bundle bundle = getIntent().getExtras();
+
+        if (bundle != null) {
+            created_date = (String) bundle.get("created_date");
+            work_posted_by_account_id = (String) bundle.get("work_posted_by_account_id");
+        }
+        DatabaseReference currentWork = database.getReference(CURRENTLY_AVAILABLE_WORKS).child(work_posted_by_account_id + "-" + created_date);
+        currentWork.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UniversalWork work = dataSnapshot.getValue(UniversalWork.class);
+                postedAtTextView.setText(work.getCreated_date());
+                postedByTextView.setText(work.getWork_posted_by_name());
+                priceRangeTextView.setText("Rs." + work.getPrice_range_from() + " - Rs." + work.getPrice_range_to());
+                userPhoneNumberTextView.setText(work.getUser_phone());
+                userLocationTextView.setText(work.getWork_address());
+                deadlineTextView.setText(work.getWork_deadline());
+                workDescriptionTextView.setText(work.getWork_description());
+                if (work.getAssigned_to_id().equals(currentUser.getUid())) {
+                    acceptWorkButton.setEnabled(false);
+                    acceptWorkButton.setText("You have accepted this work");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        acceptWorkButton.setOnClickListener(view -> new AlertDialog.Builder(WorkDetailsActivity.this)
+                .setMessage("Are you sure want to accept?")
+                .setCancelable(true)
+                .setPositiveButton("YES", (dialog, which) -> {
+                    Toast.makeText(WorkDetailsActivity.this, "Accepted", Toast.LENGTH_SHORT).show();
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                    String currentDateAndTime = sdf.format(new Date());
+
+                    currentWork.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
+                    currentWork.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
+                    currentWork.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
+                    currentWork.child(WORKER_PHONE_NUMBER).setValue(""); // TODO: 23-09-2019 set phone number of worker from db
+
+                    DatabaseReference accountOfUser = database.getReference(USER_ACCOUNTS).child(work_posted_by_account_id);
+                    DatabaseReference workInUserHistory = accountOfUser.child(WORKS_POSTED).child(work_posted_by_account_id + "-" + created_date);
+                    workInUserHistory.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
+                    workInUserHistory.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
+                    workInUserHistory.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
+                    workInUserHistory.child(WORKER_PHONE_NUMBER).setValue(""); // TODO: 23-09-2019 set phone number of worker from db
+                    acceptWorkButton.setEnabled(false);
+                    acceptWorkButton.setText("You have accepted this work");
+                    AsyncTask.execute(this::sendNotification);
+                })
+                .setNegativeButton("NO", (dialog, which) -> dialog.dismiss()).create().show());
+    }
+
+    private void getOneSignalKeys() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        storageRef.child("onesignal_id.txt").getDownloadUrl().addOnSuccessListener(uri -> {
+            ApiService apiService = RetrofitClient.getApiService();
+            Call call = apiService.getOneSignalIds(uri.toString());
+            call.enqueue(new Callback<OneSignalIds>() {
+
+                @Override
+                public void onResponse(@NonNull Call<OneSignalIds> call, @NonNull Response<OneSignalIds> response) {
+                    if (response.isSuccessful()) {
+                        assert response.body() != null;
+                        oneSignalAppId = response.body().getOnesignalAppId();
+                        oneSignalRestApiKey = response.body().getRestApiKey();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<OneSignalIds> call, @NonNull Throwable t) {
+
+                }
+            });
+        }).addOnFailureListener(e -> {
+
+        });
+    }
+
+    private void sendNotification() {
+        try {
+            String jsonResponse;
+
+            URL url = new URL("https://onesignal.com/api/v1/notifications");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setUseCaches(false);
+            con.setDoOutput(true);
+            con.setDoInput(true);
+
+            con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            con.setRequestProperty("Authorization", "Basic " + oneSignalRestApiKey);
+            con.setRequestMethod("POST");
+
+            String strJsonBody = "{"
+                    + "\"app_id\": \"" + oneSignalAppId + "\","
+                    + "\"filters\": [{\"field\": \"tag\", \"key\": \"" + UID + "\", \"relation\": \"=\", \"value\": \"" + work_posted_by_account_id + "\"},{\"operator\": \"OR\"},{\"field\": \"amount_spent\", \"relation\": \">\",\"value\": \"0\"}],"
+                    + "\"data\": {\"foo\": \"bar\"},"
+                    + "\"contents\": {\"en\": \"Your work has been accepted by " + currentUser.getDisplayName() + "\"}"
+                    + "}";
+
+            System.out.println("strJsonBody:\n" + strJsonBody);
+
+            byte[] sendBytes = strJsonBody.getBytes(StandardCharsets.UTF_8);
+            con.setFixedLengthStreamingMode(sendBytes.length);
+
+            OutputStream outputStream = con.getOutputStream();
+            outputStream.write(sendBytes);
+
+            int httpResponse = con.getResponseCode();
+            System.out.println("httpResponse: " + httpResponse);
+
+            if (httpResponse >= HttpURLConnection.HTTP_OK
+                    && httpResponse < HttpURLConnection.HTTP_BAD_REQUEST) {
+                Scanner scanner = new Scanner(con.getInputStream(), "UTF-8");
+                jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                scanner.close();
+            } else {
+                Scanner scanner = new Scanner(con.getErrorStream(), "UTF-8");
+                jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                scanner.close();
+            }
+            System.out.println("jsonResponse:\n" + jsonResponse);
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+}

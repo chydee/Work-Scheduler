@@ -5,12 +5,26 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Currently available works to accept"
+        android:padding="8dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/black"
+        android:fontFamily="sans-serif-light"
+        android:ellipsize="marquee"/>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@id/hint"
         android:id="@+id/works_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
+
     <TextView
         android:id="@+id/no_history"
         android:layout_width="wrap_content"

@@ -114,6 +114,7 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         work.setAssigned_at("");
         work.setAssigned_to("");
+        work.setAssigned_to_id("");
         work.setCreated_date(currentDateAndTime);
         work.setUser_phone(phoneNumberEditText.getText().toString());
         work.setWork_address(addressEditText.getText().toString());
@@ -144,6 +145,7 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
         individualWork.setPrice_range_to(priceRangeToEditText.getText().toString());
         individualWork.setCreated_date(currentDateAndTime);
         individualWork.setAssigned_to("");
+        individualWork.setAssigned_to_id("");
         individualWork.setAssigned_at("");
         individualWork.setWork_completed(false);
         individualWork.setWork_deadline(deadline);
@@ -175,7 +177,7 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
                     + "\"app_id\": \"" + oneSignalAppId + "\","
                     + "\"filters\": [{\"field\": \"tag\", \"key\": \"" + WORK_CATEGORY + "\", \"relation\": \"=\", \"value\": \"" + workCategory + "\"},{\"operator\": \"OR\"},{\"field\": \"amount_spent\", \"relation\": \">\",\"value\": \"0\"}],"
                     + "\"data\": {\"foo\": \"bar\"},"
-                    + "\"contents\": {\"en\": \"A new work is available\"}"
+                    + "\"contents\": {\"en\": \"A new work is available at " + addressEditText.getText().toString() + "\"}"
                     + "}";
 
 

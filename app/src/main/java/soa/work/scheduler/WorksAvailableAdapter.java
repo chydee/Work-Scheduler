@@ -2,7 +2,6 @@ package soa.work.scheduler;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,16 +46,9 @@ public class WorksAvailableAdapter extends RecyclerView.Adapter<WorksAvailableAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         UniversalWork work = list.get(position);
         holder.user_name.setText(work.getWork_posted_by_name());
-        holder.workDescriptionTextView.setText(work.getWork_description());
-        holder.work_deadline.setText(work.getWork_deadline());
+        holder.workDescriptionTextView.setText("Description: " + work.getWork_description());
+        holder.work_deadline.setText("Deadline: " + work.getWork_deadline());
         holder.work_price_range.setText("Rs." + work.getPrice_range_from() + " - " + "Rs." + work.getPrice_range_to());
-
-            holder.work_card.setOnClickListener(view -> {
-                Intent intent = new Intent(mContext, WorkAcceptedActivity.class);
-                intent.putExtra("created_date", work.getCreated_date());
-                intent.putExtra("work_posted_by_account_id", work.getWork_posted_by_account_id());
-                mContext.startActivity(intent);
-            });
         switch (work.getWork_category()) {
             case PAINTER:
                 holder.categoryImageView.setImageResource(R.drawable.ic_painter);
@@ -97,8 +89,6 @@ public class WorksAvailableAdapter extends RecyclerView.Adapter<WorksAvailableAd
         TextView work_deadline;
         @BindView(R.id.work_price)
         TextView work_price_range;
-        @BindView(R.id.work_card)
-        CardView work_card;
 
         ViewHolder(View view) {
             super(view);

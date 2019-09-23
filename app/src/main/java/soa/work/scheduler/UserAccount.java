@@ -2,7 +2,7 @@ package soa.work.scheduler;
 
 public class UserAccount {
     private String account_created_on;
-    private String contact_number;
+    private String phone_number;
     private String email;
     private String name;
     private String work_category;
@@ -10,9 +10,9 @@ public class UserAccount {
     public UserAccount() {
     }
 
-    public UserAccount(String account_created_on, String contact_number, String email, String name, String work_category) {
+    public UserAccount(String account_created_on, String phone_number, String email, String name, String work_category) {
         this.account_created_on = account_created_on;
-        this.contact_number = contact_number;
+        this.phone_number = phone_number;
         this.email = email;
         this.name = name;
         this.work_category = work_category;
@@ -24,14 +24,6 @@ public class UserAccount {
 
     public void setAccount_created_on(String account_created_on) {
         this.account_created_on = account_created_on;
-    }
-
-    public String getContact_number() {
-        return contact_number;
-    }
-
-    public void setContact_number(String contact_number) {
-        this.contact_number = contact_number;
     }
 
     public String getEmail() {
@@ -56,5 +48,13 @@ public class UserAccount {
 
     public void setWork_category(String work_category) {
         this.work_category = work_category;
+    }
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
     }
 }

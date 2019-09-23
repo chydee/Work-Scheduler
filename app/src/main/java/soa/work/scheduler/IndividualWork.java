@@ -4,13 +4,19 @@ public class IndividualWork {
     private String work_category;
     private String work_description;
     private String work_address;
+    private String worker_phone_number;
     private String user_phone;
     private String created_date;
     private String assigned_to;
+    private String assigned_to_id;
     private String assigned_at;
     private boolean work_completed;
     private String work_deadline;
     private String price_range_from;
+    private String price_range_to;
+
+    public IndividualWork() {
+    }
 
     public String getPrice_range_from() {
         return price_range_from;
@@ -26,11 +32,6 @@ public class IndividualWork {
 
     public void setPrice_range_to(String price_range_to) {
         this.price_range_to = price_range_to;
-    }
-
-    private String price_range_to;
-
-    public IndividualWork() {
     }
 
     public String getWork_category() {
@@ -103,5 +104,21 @@ public class IndividualWork {
 
     public void setWork_deadline(String work_deadline) {
         this.work_deadline = work_deadline;
+    }
+
+    public String getAssigned_to_id() {
+        return assigned_to_id;
+    }
+
+    public void setAssigned_to_id(String assigned_to_id) {
+        this.assigned_to_id = assigned_to_id;
+    }
+
+    public String getWorker_phone_number() {
+        return worker_phone_number;
+    }
+
+    public void setWorker_phone_number(String worker_phone_number) {
+        this.worker_phone_number = worker_phone_number;
     }
 }

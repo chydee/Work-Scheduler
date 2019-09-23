@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +29,7 @@ import butterknife.ButterKnife;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORKS_POSTED;
 
-public class WorksHistoryActivity extends AppCompatActivity {
+public class WorksHistoryActivity extends AppCompatActivity implements WorkersHistoryAdapter.ItemCLickListener {
 
     @BindView(R.id.history_recycler_view)
     RecyclerView historyRecyclerView;
@@ -45,6 +47,7 @@ public class WorksHistoryActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         workersHistoryAdapter = new WorkersHistoryAdapter(workList);
+        workersHistoryAdapter.setItemClickListener(this);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         historyRecyclerView.setHasFixedSize(true);
         historyRecyclerView.setAdapter(workersHistoryAdapter);
@@ -66,6 +69,7 @@ public class WorksHistoryActivity extends AppCompatActivity {
                 for (DataSnapshot item: dataSnapshot.getChildren()) {
                     workList.add(item.getValue(IndividualWork.class));
                 }
+                Collections.reverse(workList);
                 noHistoryTextView.setVisibility(View.GONE);
                 workersHistoryAdapter.notifyDataSetChanged();
             }
@@ -84,5 +88,12 @@ public class WorksHistoryActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick(IndividualWork work) {
+        Intent intent = new Intent(WorksHistoryActivity.this, WorkDetailsActivityForUser.class);
+        intent.putExtra("created_date", work.getCreated_date());
+        startActivity(intent);
     }
 }

@@ -39,8 +39,8 @@ public class WorkersHistoryAdapter extends RecyclerView.Adapter<WorkersHistoryAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         IndividualWork work = list.get(position);
-        holder.workDescriptionTextView.setText(work.getWork_description());
-        holder.createdAtTextView.setText(work.getCreated_date());
+        holder.workDescriptionTextView.setText("Description: " + work.getWork_description());
+        holder.createdAtTextView.setText("Posted at: " + work.getCreated_date());
 
         switch (work.getWork_category()) {
             case PAINTER:
@@ -60,9 +60,13 @@ public class WorkersHistoryAdapter extends RecyclerView.Adapter<WorkersHistoryAd
         }
 
         if (work.getWork_completed()) {
-            holder.completedStatusTextView.setText("Completed");
+            holder.completedStatusTextView.setText("Status: Completed");
         } else {
-            holder.completedStatusTextView.setText("Not Completed");
+            holder.completedStatusTextView.setText("Status: Not Completed");
+        }
+
+        if (work.getAssigned_to() != null && !work.getAssigned_to().isEmpty()) {
+            holder.assignedToTextView.setText("Assigned to: " + work.getAssigned_to());
         }
     }
 
@@ -85,6 +89,8 @@ public class WorkersHistoryAdapter extends RecyclerView.Adapter<WorkersHistoryAd
         TextView createdAtTextView;
         @BindView(R.id.completed_status_text_view)
         TextView completedStatusTextView;
+        @BindView(R.id.assigned_to_text_view)
+        TextView assignedToTextView;
 
         ViewHolder(View view) {
             super(view);

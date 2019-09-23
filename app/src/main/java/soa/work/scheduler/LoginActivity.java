@@ -32,22 +32,25 @@ import java.util.Locale;
 
 import soa.work.scheduler.models.AppStatus;
 
+import static soa.work.scheduler.Constants.USER_ACCOUNT;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 
 public class LoginActivity extends AppCompatActivity {
 
-    GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 234;
     private AppStatus appStatus;
     //And also a Firebase Auth object
-    FirebaseAuth mAuth;
-
-    ProgressDialog pd;
+    private FirebaseAuth mAuth;
+    private ProgressDialog pd;
+    private PrefManager prefManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        prefManager = new PrefManager(this);
 
         mAuth = FirebaseAuth.getInstance();
         appStatus = new AppStatus(this);
@@ -80,7 +83,13 @@ public class LoginActivity extends AppCompatActivity {
         //and take the user to profile activity
         if (mAuth.getCurrentUser() != null) {
             if (appStatus.isOnline()) {
-                startActivity(new Intent(this, MainActivity.class));
+                Intent intent;
+                if (prefManager.getLastOpenedActivity() == USER_ACCOUNT) {
+                    intent = new Intent(this, MainActivity.class);
+                } else {
+                    intent = new Intent(this, WorkersActivity.class);
+                }
+                startActivity(intent);
                 finish();
             } else {
                 pd.dismiss();
@@ -143,12 +152,22 @@ public class LoginActivity extends AppCompatActivity {
                                         userAccount.setWork_category("false");
                                         userAccountsRef.child(user.getUid()).setValue(userAccount);
                                         Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        Intent intent;
+                                        if (prefManager.getLastOpenedActivity() == USER_ACCOUNT) {
+                                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        } else {
+                                            intent = new Intent(LoginActivity.this, WorkersActivity.class);
+                                        }
                                         startActivity(intent);
                                         finish();
                                     } else {
                                         Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        Intent intent;
+                                        if (prefManager.getLastOpenedActivity() == USER_ACCOUNT) {
+                                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        } else {
+                                            intent = new Intent(LoginActivity.this, WorkersActivity.class);
+                                        }
                                         startActivity(intent);
                                         finish();
                                     }

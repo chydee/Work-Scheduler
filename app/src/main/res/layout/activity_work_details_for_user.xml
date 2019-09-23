@@ -13,6 +13,84 @@
             android:layout_height="wrap_content"
             android:padding="8dp">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Worker Details:"
+                android:layout_marginStart="40dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:id="@+id/user_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_user_accent_color"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/user_icon"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:hint="Worker Name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/worker_name_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:id="@+id/phone_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_call"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/phone_icon"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:hint="Worker Phone number">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/worker_phone_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Work Details:"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="40dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -37,38 +115,6 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/posted_at_text_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </RelativeLayout>
-
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <ImageView
-                    android:id="@+id/user_icon"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_user_accent_color"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/user_icon"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
-                    android:hint="Posted By">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/posted_by_text_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none" />
@@ -229,6 +275,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:textColor="@android:color/white"
+        android:visibility="gone"
         android:text="Accept this work"
         android:layout_alignParentBottom="true"/>
 

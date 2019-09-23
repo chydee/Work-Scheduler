@@ -42,6 +42,7 @@ import static soa.work.scheduler.Constants.ELECTRICIAN;
 import static soa.work.scheduler.Constants.MECHANIC;
 import static soa.work.scheduler.Constants.PAINTER;
 import static soa.work.scheduler.Constants.PLUMBER;
+import static soa.work.scheduler.Constants.USER_ACCOUNT;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORK_CATEGORY;
 
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .init();
 
         ButterKnife.bind(this);
+        new PrefManager(this).setLastOpenedActivity(USER_ACCOUNT);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
