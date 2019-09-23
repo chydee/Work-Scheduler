@@ -38,6 +38,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import soa.work.scheduler.Retrofit.ApiService;
 import soa.work.scheduler.Retrofit.RetrofitClient;
+import soa.work.scheduler.models.AppStatus;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
@@ -60,6 +61,7 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
     TextView pickedDateTextView;
     @BindView(R.id.date)
     Button button_date;
+    private AppStatus appStatus;
     private String oneSignalAppId;
     private String oneSignalRestApiKey;
     private String workCategory;
@@ -76,6 +78,7 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
         workCategory = getIntent().getStringExtra(WORK_CATEGORY);
         getOneSignalKeys();
 
+        appStatus = new AppStatus(this);
         button_date.setOnClickListener(arg0 -> {
             DatePickerFragment dialog = new DatePickerFragment();
             dialog.show(getSupportFragmentManager(), DIALOG_DATE);
@@ -240,8 +243,11 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.send_work_menu_item) {
-            broadcast();
-            return true;
+            if (appStatus.isOnline())
+                broadcast();
+             else
+                Toast.makeText(this, "Please check your internet connection!", Toast.LENGTH_SHORT).show();
+             return true;
         } else if (item.getItemId() == android.R.id.home) {
             super.onBackPressed();
             return true;
@@ -268,7 +274,9 @@ public class WorkFormActivity extends AppCompatActivity implements DatePickerFra
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.getDefault());
             Date date = sdf.parse(deadline_date + " " + time);
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-            deadline = sdf2.format(date);
+            if (date != null) {
+                deadline = sdf2.format(date);
+            }
             pickedDateTextView.setText(deadline.replace("_", " "));
         } catch (ParseException e) {
             e.printStackTrace();

@@ -30,13 +30,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import soa.work.scheduler.models.AppStatus;
+
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 
 public class LoginActivity extends AppCompatActivity {
 
     GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 234;
-
+    private AppStatus appStatus;
     //And also a Firebase Auth object
     FirebaseAuth mAuth;
 
@@ -48,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-
+        appStatus = new AppStatus(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -56,12 +58,19 @@ public class LoginActivity extends AppCompatActivity {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        findViewById(R.id.sign_in_button).setOnClickListener(view -> signIn());
+        findViewById(R.id.sign_in_button).setOnClickListener(view -> {
+            if (appStatus.isOnline()) {
+                signIn();
+            } else {
+                Toast.makeText(this, "Please check your internet connection!", Toast.LENGTH_SHORT).show();
+            }
+        });
         pd = new ProgressDialog(LoginActivity.this);
         pd.setMessage("Please Wait");
         pd.setCancelable(false);
 
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -70,8 +79,13 @@ public class LoginActivity extends AppCompatActivity {
         //we will close this activity
         //and take the user to profile activity
         if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+            if (appStatus.isOnline()) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            } else {
+                pd.dismiss();
+                Toast.makeText(this, "Please check your internet connection!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -94,7 +108,9 @@ public class LoginActivity extends AppCompatActivity {
                     firebaseAuthWithGoogle(account);
                 }
             } catch (ApiException e) {
-                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                pd.dismiss();
+                //Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Try Again", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -108,30 +124,34 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        OneSignal.sendTag("uid", user.getUid());
+                        if (user != null) {
+                            OneSignal.sendTag("uid", user.getUid());
+                        }
                         FirebaseDatabase databaseRef = FirebaseDatabase.getInstance();
                         DatabaseReference userAccountsRef = databaseRef.getReference(USER_ACCOUNTS);
                         userAccountsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (!dataSnapshot.hasChild(user.getUid())) {
-                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-                                    String currentDateAndTime = sdf.format(new Date());
-                                    UserAccount userAccount = new UserAccount();
-                                    userAccount.setAccount_created_on(currentDateAndTime);
-                                    userAccount.setEmail(user.getEmail());
-                                    userAccount.setName(user.getDisplayName());
-                                    userAccount.setWork_category("false");
-                                    userAccountsRef.child(user.getUid()).setValue(userAccount);
-                                    Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
+                                if (user != null) {
+                                    if (!dataSnapshot.hasChild(user.getUid())) {
+                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                                        String currentDateAndTime = sdf.format(new Date());
+                                        UserAccount userAccount = new UserAccount();
+                                        userAccount.setAccount_created_on(currentDateAndTime);
+                                        userAccount.setEmail(user.getEmail());
+                                        userAccount.setName(user.getDisplayName());
+                                        userAccount.setWork_category("false");
+                                        userAccountsRef.child(user.getUid()).setValue(userAccount);
+                                        Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
                                 }
                             }
 
@@ -141,10 +161,12 @@ public class LoginActivity extends AppCompatActivity {
                                 pd.dismiss();
                             }
                         });
-                        
+
                     } else {
+                        pd.dismiss();
                         Toast.makeText(LoginActivity.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Please check your internet connection!", Toast.LENGTH_SHORT).show();
 
                     }
                 });

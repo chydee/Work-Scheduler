@@ -1,5 +1,14 @@
 package soa.work.scheduler;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,14 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,9 +34,10 @@ import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import soa.work.scheduler.models.AppStatus;
 
-import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
+import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORK_CATEGORY;
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -46,16 +49,19 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
     DrawerLayout drawerLayout;
     @BindView(R.id.nav_view)
     NavigationView navigationView;
-
+    private String work_category;
     private FirebaseUser currentUser;
     private ImageView profilePictureImageView;
     private TextView profileNameTextView;
+    private AppStatus appStatus;
     private WorksAvailableAdapter worksAvailableAdapter;
     private ArrayList<UniversalWork> workList = new ArrayList<>();
     @BindView(R.id.works_recycler_view)
     RecyclerView worksRecyclerView;
     @BindView(R.id.no_history)
     TextView noWorksTextView;
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,50 +69,74 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
 
         ButterKnife.bind(this);
         setTitle("Worker Account");
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Please wait");
+        progressDialog.setCancelable(false);
+        if (!appStatus.isOnline()) {
+            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+        } else {
+            worksAvailableAdapter = new WorksAvailableAdapter(workList, this);
+            worksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            worksRecyclerView.setHasFixedSize(true);
+            worksRecyclerView.setAdapter(worksAvailableAdapter);
 
-        worksAvailableAdapter = new WorksAvailableAdapter(workList, this);
-        worksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        worksRecyclerView.setHasFixedSize(true);
-        worksRecyclerView.setAdapter(worksAvailableAdapter);
+            currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            View header = navigationView.getHeaderView(0);
+            profilePictureImageView = header.findViewById(R.id.profile_picture_image_view);
+            profileNameTextView = header.findViewById(R.id.profile_name_text_view);
+            Picasso.get().load(currentUser.getPhotoUrl()).into(profilePictureImageView);
+            profileNameTextView.setText(currentUser.getDisplayName());
 
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        View header = navigationView.getHeaderView(0);
-        profilePictureImageView = header.findViewById(R.id.profile_picture_image_view);
-        profileNameTextView = header.findViewById(R.id.profile_name_text_view);
-        Picasso.get().load(currentUser.getPhotoUrl()).into(profilePictureImageView);
-        profileNameTextView.setText(currentUser.getDisplayName());
+            setSupportActionBar(toolbar);
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawerLayout.addDrawerListener(toggle);
+            toggle.syncState();
+            navigationView.setNavigationItemSelectedListener(this);
 
-        setSupportActionBar(toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference currentUserAccount = database.getReference(USER_ACCOUNTS).child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).child(WORK_CATEGORY);
+            DatabaseReference currently_available = database.getReference().child(CURRENTLY_AVAILABLE_WORKS);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference currently_available = database.getReference().child(CURRENTLY_AVAILABLE_WORKS);
-        currently_available.orderByChild(WORK_CATEGORY)
-                .equalTo("Mechanic") //need to fetch the work_category of current user
-                .addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                workList.clear();
-                if (dataSnapshot.getChildrenCount() == 0) {
-                    noWorksTextView.setVisibility(View.VISIBLE);
-                    worksAvailableAdapter.notifyDataSetChanged();
-                    return;
+            currentUserAccount.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    work_category = dataSnapshot.getValue(String.class);
+
+                    currently_available.orderByChild(WORK_CATEGORY)
+                            .equalTo(work_category)
+                            .addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    workList.clear();
+                                    if (dataSnapshot.getChildrenCount() == 0) {
+                                        noWorksTextView.setVisibility(View.VISIBLE);
+                                        worksAvailableAdapter.notifyDataSetChanged();
+                                        return;
+                                    }
+                                    for (DataSnapshot item : dataSnapshot.getChildren()) {
+                                        /**
+                                         *Add a if condition to check whether the work is assigned or not*/
+                                        workList.add(item.getValue(UniversalWork.class));
+
+                                    }
+                                    noWorksTextView.setVisibility(View.GONE);
+                                    worksAvailableAdapter.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    Toast.makeText(WorkersActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                 }
-                for (DataSnapshot item: dataSnapshot.getChildren()) {
-                    workList.add(item.getValue(UniversalWork.class));
-                }
-                noWorksTextView.setVisibility(View.GONE);
-                worksAvailableAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(WorkersActivity.this, "Error", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+        }
     }
 
     @Override

@@ -92,8 +92,8 @@
                 android:id="@+id/phone_number"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:maxLength="13"
-                android:inputType="phone" />
+                android:maxLength="10"
+                android:inputType="number" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

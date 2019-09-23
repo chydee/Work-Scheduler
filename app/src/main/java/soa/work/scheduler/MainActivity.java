@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import soa.work.scheduler.models.AppStatus;
 
 import static soa.work.scheduler.Constants.CARPENTER;
 import static soa.work.scheduler.Constants.ELECTRICIAN;

@@ -57,14 +57,12 @@ public class WorksAvailableAdapter extends RecyclerView.Adapter<WorksAvailableAd
             holder.work_status.setText("ASSIGNED");
         }
 
-        if (holder.work_status.getText() != "ASSIGNED") {
             holder.work_card.setOnClickListener(view -> {
                 Intent intent = new Intent(mContext, WorkAcceptedActivity.class);
                 intent.putExtra("created_date", work.getCreated_date());
                 intent.putExtra("work_posted_by_account_id", work.getWork_posted_by_account_id());
                 mContext.startActivity(intent);
             });
-        }
         switch (work.getWork_category()) {
             case PAINTER:
                 holder.categoryImageView.setImageResource(R.drawable.ic_painter);
