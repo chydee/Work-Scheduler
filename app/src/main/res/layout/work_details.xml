@@ -132,6 +132,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/user_phone_number"
                         android:layout_width="match_parent"
+                        android:autoLink="phone"
+                        android:linksClickable="true"
                         android:layout_height="wrap_content"
                         android:inputType="none" />
 
@@ -222,7 +224,6 @@
         </LinearLayout>
 
     </ScrollView>
-
     <Button
         android:id="@+id/work_accept"
         android:layout_width="match_parent"

@@ -67,6 +67,8 @@ public class WorkersHistoryAdapter extends RecyclerView.Adapter<WorkersHistoryAd
 
         if (work.getAssigned_to() != null && !work.getAssigned_to().isEmpty()) {
             holder.assignedToTextView.setText("Assigned to: " + work.getAssigned_to());
+        } else {
+            holder.assignedToTextView.setText("Not Assigned");
         }
     }
 

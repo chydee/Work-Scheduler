@@ -40,6 +40,7 @@ import soa.work.scheduler.Retrofit.ApiService;
 import soa.work.scheduler.Retrofit.RetrofitClient;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
+import static soa.work.scheduler.Constants.PHONE_NUMBER;
 import static soa.work.scheduler.Constants.UID;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORKER_PHONE_NUMBER;
@@ -137,14 +138,14 @@ public class WorkDetailsActivity extends AppCompatActivity {
                     currentWork.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
                     currentWork.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
                     currentWork.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
-                    currentWork.child(WORKER_PHONE_NUMBER).setValue(""); // TODO: 23-09-2019 set phone number of worker from db
+//                  currentWork.child(WORKER_PHONE_NUMBER).setValue(""); // TODO: 23-09-2019 set phone number of worker from db
 
                     DatabaseReference accountOfUser = database.getReference(USER_ACCOUNTS).child(work_posted_by_account_id);
                     DatabaseReference workInUserHistory = accountOfUser.child(WORKS_POSTED).child(work_posted_by_account_id + "-" + created_date);
                     workInUserHistory.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
                     workInUserHistory.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
                     workInUserHistory.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
-                    workInUserHistory.child(WORKER_PHONE_NUMBER).setValue(""); // TODO: 23-09-2019 set phone number of worker from db
+//                    workInUserHistory.child(WORKER_PHONE_NUMBER).; // TODO: 23-09-2019 set phone number of worker from db
                     acceptWorkButton.setEnabled(false);
                     acceptWorkButton.setText("You have accepted this work");
                     AsyncTask.execute(this::sendNotification);
