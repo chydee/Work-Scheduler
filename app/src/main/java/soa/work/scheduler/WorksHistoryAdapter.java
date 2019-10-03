@@ -20,12 +20,12 @@ import static soa.work.scheduler.Constants.MECHANIC;
 import static soa.work.scheduler.Constants.PAINTER;
 import static soa.work.scheduler.Constants.PLUMBER;
 
-public class WorkersHistoryAdapter extends RecyclerView.Adapter<WorkersHistoryAdapter.ViewHolder> {
+public class WorksHistoryAdapter extends RecyclerView.Adapter<WorksHistoryAdapter.ViewHolder> {
 
     private ItemCLickListener itemCLickListener;
     private List<IndividualWork> list;
 
-    public WorkersHistoryAdapter(List<IndividualWork> list) {
+    WorksHistoryAdapter(List<IndividualWork> list) {
         this.list = list;
     }
 

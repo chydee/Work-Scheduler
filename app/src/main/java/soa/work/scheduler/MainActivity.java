@@ -3,7 +3,6 @@ package soa.work.scheduler;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import soa.work.scheduler.models.AppStatus;
 
 import static soa.work.scheduler.Constants.CARPENTER;
 import static soa.work.scheduler.Constants.ELECTRICIAN;
@@ -136,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserAccount userAccount = dataSnapshot.getValue(UserAccount.class);
                 dummyItem.setVisible(false);
+                if (!userAccount.getWork_category().isEmpty()) {
+                    OneSignal.sendTag(WORK_CATEGORY, userAccount.getWork_category());
+                }
                 if (userAccount != null && userAccount.getWork_category() != null) {
                     if (userAccount.getWork_category().equals("false")) {
                         setupWorkerAccountItem.setVisible(true);

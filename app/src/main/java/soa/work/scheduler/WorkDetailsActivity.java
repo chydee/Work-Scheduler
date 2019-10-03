@@ -40,7 +40,6 @@ import soa.work.scheduler.Retrofit.ApiService;
 import soa.work.scheduler.Retrofit.RetrofitClient;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
-import static soa.work.scheduler.Constants.PHONE_NUMBER;
 import static soa.work.scheduler.Constants.UID;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORKER_PHONE_NUMBER;
@@ -48,7 +47,6 @@ import static soa.work.scheduler.Constants.WORKS_POSTED;
 import static soa.work.scheduler.Constants.WORK_ASSIGNED_AT;
 import static soa.work.scheduler.Constants.WORK_ASSIGNED_TO;
 import static soa.work.scheduler.Constants.WORK_ASSIGNED_TO_ID;
-import static soa.work.scheduler.Constants.WORK_CATEGORY;
 
 public class WorkDetailsActivity extends AppCompatActivity {
 
@@ -82,8 +80,6 @@ public class WorkDetailsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setTitle("Work Details");
-
-        getOneSignalKeys();
 
         postedAtTextView.setInputType(InputType.TYPE_NULL);
         postedByTextView.setInputType(InputType.TYPE_NULL);
@@ -130,25 +126,41 @@ public class WorkDetailsActivity extends AppCompatActivity {
                 .setMessage("Are you sure want to accept?")
                 .setCancelable(true)
                 .setPositiveButton("YES", (dialog, which) -> {
-                    Toast.makeText(WorkDetailsActivity.this, "Accepted", Toast.LENGTH_SHORT).show();
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
-                    String currentDateAndTime = sdf.format(new Date());
+                    FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                    DatabaseReference userAccountsRef = firebaseDatabase.getReference(USER_ACCOUNTS);
+                    DatabaseReference currentAccount = userAccountsRef.child(currentUser.getUid());
+                    currentAccount.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            UserAccount userAccount = dataSnapshot.getValue(UserAccount.class);
+                            Toast.makeText(WorkDetailsActivity.this, "Accepted", Toast.LENGTH_SHORT).show();
 
-                    currentWork.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
-                    currentWork.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
-                    currentWork.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
-//                  currentWork.child(WORKER_PHONE_NUMBER).setValue(""); // TODO: 23-09-2019 set phone number of worker from db
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.getDefault());
+                            String currentDateAndTime = sdf.format(new Date());
 
-                    DatabaseReference accountOfUser = database.getReference(USER_ACCOUNTS).child(work_posted_by_account_id);
-                    DatabaseReference workInUserHistory = accountOfUser.child(WORKS_POSTED).child(work_posted_by_account_id + "-" + created_date);
-                    workInUserHistory.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
-                    workInUserHistory.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
-                    workInUserHistory.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
-//                    workInUserHistory.child(WORKER_PHONE_NUMBER).; // TODO: 23-09-2019 set phone number of worker from db
-                    acceptWorkButton.setEnabled(false);
-                    acceptWorkButton.setText("You have accepted this work");
-                    AsyncTask.execute(this::sendNotification);
+                            currentWork.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
+                            currentWork.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
+                            currentWork.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
+                            currentWork.child(WORKER_PHONE_NUMBER).setValue(userAccount.getPhone_number());
+
+                            DatabaseReference accountOfUser = database.getReference(USER_ACCOUNTS).child(work_posted_by_account_id);
+                            DatabaseReference workInUserHistory = accountOfUser.child(WORKS_POSTED).child(work_posted_by_account_id + "-" + created_date);
+                            workInUserHistory.child(WORK_ASSIGNED_TO).setValue(currentUser.getDisplayName());
+                            workInUserHistory.child(WORK_ASSIGNED_AT).setValue(currentDateAndTime);
+                            workInUserHistory.child(WORK_ASSIGNED_TO_ID).setValue(currentUser.getUid());
+                            workInUserHistory.child(WORKER_PHONE_NUMBER).setValue(userAccount.getPhone_number());
+                            acceptWorkButton.setEnabled(false);
+                            acceptWorkButton.setText("You have accepted this work");
+                            getOneSignalKeys();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
                 })
                 .setNegativeButton("NO", (dialog, which) -> dialog.dismiss()).create().show());
     }
@@ -167,6 +179,8 @@ public class WorkDetailsActivity extends AppCompatActivity {
                         assert response.body() != null;
                         oneSignalAppId = response.body().getOnesignalAppId();
                         oneSignalRestApiKey = response.body().getRestApiKey();
+                        sendNotification();
+                        AsyncTask.execute(() -> sendNotification());
                     }
                 }
 

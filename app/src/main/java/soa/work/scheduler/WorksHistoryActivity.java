@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,14 +30,14 @@ import butterknife.ButterKnife;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
 import static soa.work.scheduler.Constants.WORKS_POSTED;
 
-public class WorksHistoryActivity extends AppCompatActivity implements WorkersHistoryAdapter.ItemCLickListener {
+public class WorksHistoryActivity extends AppCompatActivity implements WorksHistoryAdapter.ItemCLickListener {
 
     @BindView(R.id.history_recycler_view)
     RecyclerView historyRecyclerView;
     @BindView(R.id.no_history)
     TextView noHistoryTextView;
 
-    private WorkersHistoryAdapter workersHistoryAdapter;
+    private WorksHistoryAdapter worksHistoryAdapter;
     private ArrayList<IndividualWork> workList = new ArrayList<>();
 
     @Override
@@ -46,11 +47,11 @@ public class WorksHistoryActivity extends AppCompatActivity implements WorkersHi
 
         ButterKnife.bind(this);
 
-        workersHistoryAdapter = new WorkersHistoryAdapter(workList);
-        workersHistoryAdapter.setItemClickListener(this);
+        worksHistoryAdapter = new WorksHistoryAdapter(workList);
+        worksHistoryAdapter.setItemClickListener(this);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         historyRecyclerView.setHasFixedSize(true);
-        historyRecyclerView.setAdapter(workersHistoryAdapter);
+        historyRecyclerView.setAdapter(worksHistoryAdapter);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userAccounts = database.getReference(USER_ACCOUNTS);
@@ -63,15 +64,21 @@ public class WorksHistoryActivity extends AppCompatActivity implements WorkersHi
                 workList.clear();
                 if (dataSnapshot.getChildrenCount() == 0) {
                     noHistoryTextView.setVisibility(View.VISIBLE);
-                    workersHistoryAdapter.notifyDataSetChanged();
+                    worksHistoryAdapter.notifyDataSetChanged();
                     return;
                 }
                 for (DataSnapshot item: dataSnapshot.getChildren()) {
                     workList.add(item.getValue(IndividualWork.class));
                 }
+                Collections.sort(workList, new Comparator<IndividualWork>() {
+                    @Override
+                    public int compare(IndividualWork individualWork, IndividualWork t1) {
+                        return individualWork.getCreated_date().compareTo(t1.getCreated_date());
+                    }
+                });
                 Collections.reverse(workList);
                 noHistoryTextView.setVisibility(View.GONE);
-                workersHistoryAdapter.notifyDataSetChanged();
+                worksHistoryAdapter.notifyDataSetChanged();
             }
 
             @Override

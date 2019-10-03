@@ -3,7 +3,6 @@ package soa.work.scheduler;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,10 +26,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.onesignal.OneSignal;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -52,7 +53,7 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
     @BindView(R.id.nav_view)
     NavigationView navigationView;
     private String work_category;
-    private FirebaseUser currentUser;
+    private FirebaseUser firebaseUser;
     private ImageView profilePictureImageView;
     private TextView profileNameTextView;
     private AppStatus appStatus;
@@ -87,12 +88,12 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
             worksRecyclerView.setHasFixedSize(true);
             worksRecyclerView.setAdapter(worksAvailableAdapter);
 
-            currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             View header = navigationView.getHeaderView(0);
             profilePictureImageView = header.findViewById(R.id.profile_picture_image_view);
             profileNameTextView = header.findViewById(R.id.profile_name_text_view);
-            Picasso.get().load(currentUser.getPhotoUrl()).into(profilePictureImageView);
-            profileNameTextView.setText(currentUser.getDisplayName());
+            Picasso.get().load(firebaseUser.getPhotoUrl()).into(profilePictureImageView);
+            profileNameTextView.setText(firebaseUser.getDisplayName());
 
             setSupportActionBar(toolbar);
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -101,13 +102,14 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
             navigationView.setNavigationItemSelectedListener(this);
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference currentUserAccount = database.getReference(USER_ACCOUNTS).child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).child(WORK_CATEGORY);
+            DatabaseReference workCategoryRef = database.getReference(USER_ACCOUNTS).child(firebaseUser.getUid()).child(WORK_CATEGORY);
             DatabaseReference currently_available = database.getReference().child(CURRENTLY_AVAILABLE_WORKS);
 
-            currentUserAccount.addValueEventListener(new ValueEventListener() {
+            workCategoryRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     work_category = dataSnapshot.getValue(String.class);
+                    OneSignal.sendTag(WORK_CATEGORY, work_category);
 
                     currently_available.orderByChild(WORK_CATEGORY)
                             .equalTo(work_category)
@@ -123,13 +125,27 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
                                     for (DataSnapshot item : dataSnapshot.getChildren()) {
                                         UniversalWork work = item.getValue(UniversalWork.class);
                                         if (work.getAssigned_at().isEmpty() && work.getAssigned_to().isEmpty()) {
-                                            workList.add(work);
+                                            if (!work.getWork_posted_by_account_id().equals(firebaseUser.getUid())) {
+                                                workList.add(work);
+                                            }
                                         } else {
-                                            if (work.getAssigned_to_id().equals(currentUser.getUid())) {
+                                            if (work.getAssigned_to_id().equals(firebaseUser.getUid())) {
                                                 workList.add(work);
                                             }
                                         }
                                     }
+                                    if (workList.isEmpty()) {
+                                        noWorksTextView.setVisibility(View.VISIBLE);
+                                        worksAvailableAdapter.notifyDataSetChanged();
+                                        return;
+                                    }
+                                    progressDialog.dismiss();
+                                    Collections.sort(workList, new Comparator<UniversalWork>() {
+                                        @Override
+                                        public int compare(UniversalWork individualWork, UniversalWork t1) {
+                                            return individualWork.getCreated_date().compareTo(t1.getCreated_date());
+                                        }
+                                    });
                                     Collections.reverse(workList);
                                     noWorksTextView.setVisibility(View.GONE);
                                     worksAvailableAdapter.notifyDataSetChanged();
