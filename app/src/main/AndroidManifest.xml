@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".WorkDetailsActivityForUser"></activity>
+        <activity android:name=".WorkDetailsActivityForUser" />
         <activity
             android:name=".WorkDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -47,6 +47,7 @@
             </intent-filter>
         </activity>
     </application>
+
     <uses-permission android:name="ANDROID.PERMISSION.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
