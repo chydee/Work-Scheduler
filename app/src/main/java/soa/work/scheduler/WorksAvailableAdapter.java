@@ -9,13 +9,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import soa.work.scheduler.models.UniversalWork;
 
 import static soa.work.scheduler.Constants.CARPENTER;
 import static soa.work.scheduler.Constants.ELECTRICIAN;

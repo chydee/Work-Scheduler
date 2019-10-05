@@ -31,12 +31,12 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import soa.work.scheduler.models.AppStatus;
+import soa.work.scheduler.models.UniversalWork;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
@@ -124,7 +124,7 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
                                     }
                                     for (DataSnapshot item : dataSnapshot.getChildren()) {
                                         UniversalWork work = item.getValue(UniversalWork.class);
-                                        if (work.getAssigned_at().isEmpty() && work.getAssigned_to().isEmpty()) {
+                                        if (Objects.requireNonNull(work).getAssigned_at().isEmpty() && work.getAssigned_to().isEmpty()) {
                                             if (!work.getWork_posted_by_account_id().equals(firebaseUser.getUid())) {
                                                 workList.add(work);
                                             }
@@ -140,12 +140,7 @@ public class WorkersActivity extends AppCompatActivity implements NavigationView
                                         return;
                                     }
                                     progressDialog.dismiss();
-                                    Collections.sort(workList, new Comparator<UniversalWork>() {
-                                        @Override
-                                        public int compare(UniversalWork individualWork, UniversalWork t1) {
-                                            return individualWork.getCreated_date().compareTo(t1.getCreated_date());
-                                        }
-                                    });
+                                    Collections.sort(workList, (individualWork, t1) -> individualWork.getCreated_date().compareTo(t1.getCreated_date()));
                                     Collections.reverse(workList);
                                     noWorksTextView.setVisibility(View.GONE);
                                     worksAvailableAdapter.notifyDataSetChanged();

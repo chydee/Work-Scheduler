@@ -39,6 +39,9 @@ import retrofit2.Response;
 import soa.work.scheduler.Retrofit.ApiService;
 import soa.work.scheduler.Retrofit.RetrofitClient;
 import soa.work.scheduler.models.AppStatus;
+import soa.work.scheduler.models.IndividualWork;
+import soa.work.scheduler.models.OneSignalIds;
+import soa.work.scheduler.models.UniversalWork;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;

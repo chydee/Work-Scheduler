@@ -12,4 +12,6 @@
     <string name="accept_this_work_btn">Accept this work</string>
     <string name="work_description_hint">Work Description</string>
     <string name="you_have_accepted">You have accepted this work</string>
+    <string name="you_haven_t_broadcast_any_work_yet">You haven\'t broadcast any work yet!</string>
+    <string name="work_problem_description_hint">Work/Problem description</string>
 </resources>

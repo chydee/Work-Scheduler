@@ -1,17 +1,15 @@
 package soa.work.scheduler;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -22,12 +20,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import soa.work.scheduler.models.UniversalWork;
 
 import static soa.work.scheduler.Constants.CURRENTLY_AVAILABLE_WORKS;
 import static soa.work.scheduler.Constants.PHONE_NUMBER;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
-import static soa.work.scheduler.Constants.WORK_ASSIGNED_AT;
-import static soa.work.scheduler.Constants.WORK_ASSIGNED_TO_ID;
 
 public class WorkDetailsActivityForUser extends AppCompatActivity {
 

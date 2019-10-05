@@ -1,4 +1,4 @@
-package soa.work.scheduler;
+package soa.work.scheduler.models;
 
 public class IndividualWork {
     private String work_category;

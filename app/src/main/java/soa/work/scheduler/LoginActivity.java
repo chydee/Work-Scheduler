@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import soa.work.scheduler.models.AppStatus;
+import soa.work.scheduler.models.UserAccount;
 
 import static soa.work.scheduler.Constants.USER_ACCOUNT;
 import static soa.work.scheduler.Constants.USER_ACCOUNTS;
@@ -118,8 +119,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } catch (ApiException e) {
                 pd.dismiss();
-                //Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                Toast.makeText(this, "Try Again", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Try Again", Toast.LENGTH_SHORT).show();
             }
         }
     }

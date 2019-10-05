@@ -132,7 +132,7 @@
             android:layout_height="0dp"
             android:minHeight="300dp"
             android:layout_weight="1"
-            android:hint="Work/Problem description">
+            android:hint="@string/work_problem_description_hint">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/work_description_edit_text"

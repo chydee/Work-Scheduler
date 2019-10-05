@@ -13,6 +13,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import soa.work.scheduler.models.IndividualWork;
 
 import static soa.work.scheduler.Constants.CARPENTER;
 import static soa.work.scheduler.Constants.ELECTRICIAN;

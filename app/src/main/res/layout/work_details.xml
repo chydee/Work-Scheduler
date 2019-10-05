@@ -223,7 +223,7 @@
                     android:id="@+id/work_description_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textCapSentences|textMultiLine" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
