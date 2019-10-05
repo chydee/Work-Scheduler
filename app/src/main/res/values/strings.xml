@@ -11,4 +11,5 @@
     <string name="location_hint">Location</string>
     <string name="deadline_hint">Deadline</string>
     <string name="accept_this_work_btn">Accept this work</string>
+    <string name="you_have_accepted_this_work">You have accepted this work</string>
 </resources>
